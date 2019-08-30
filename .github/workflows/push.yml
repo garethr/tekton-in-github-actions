@@ -45,4 +45,6 @@ jobs:
     - name: Result
       run: |
         export KUBECONFIG="$(kind get kubeconfig-path)"
-        test $(kubectl get taskrun kubeval-example -o json | jq -rc .status.conditions[0].reason) != "Failed"
+        REASON=$(kubectl get taskrun kubeval-example -o json | jq -rc .status.conditions[0].reason)
+        echo "The job ${REASON}"
+        test ${REASON} != "Failed"
