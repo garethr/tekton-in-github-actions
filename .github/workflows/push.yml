@@ -7,10 +7,9 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - uses: engineerd/setup-kind@v0.1.0
-
-    - name: Install envsubstr
+    - name: Install jq
       run: |
-        sudo apt-get install gettext-base
+        sudo apt-get install jq
     - name: Install Tekton
       run: |
         export KUBECONFIG="$(kind get kubeconfig-path)"
@@ -23,17 +22,17 @@ jobs:
       run: |
         export KUBECONFIG="$(kind get kubeconfig-path)"
         kubectl apply -f taskrun.yaml
+        # currently needing to wait for completion
+        sleep 120
     - name: Install Tekton CLI
       run: |
         curl -LO https://github.com/tektoncd/cli/releases/download/v0.2.2/tkn_0.2.2_Linux_x86_64.tar.gz
         sudo tar xvzf tkn_0.2.2_Linux_x86_64.tar.gz -C /usr/local/bin/ tkn
-    - name: Debug 
-      run: |
-        sleep 120
-        export KUBECONFIG="$(kind get kubeconfig-path)"
-        kubectl get all
-        tkn taskrun list
     - name: Get TaskRun Logs
       run: |
         export KUBECONFIG="$(kind get kubeconfig-path)"
         tkn taskrun logs kubeval-example -a -f
+    - name: Result
+      run: |
+        export KUBECONFIG="$(kind get kubeconfig-path)"
+        test $(kubectl get taskrun kubeval-example -o json | jq -rc .status.conditions[0].reason) != "Failed"
