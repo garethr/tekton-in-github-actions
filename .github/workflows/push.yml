@@ -22,8 +22,18 @@ jobs:
       run: |
         export KUBECONFIG="$(kind get kubeconfig-path)"
         kubectl apply -f taskrun.yaml
-        # currently needing to wait for completion
-        sleep 120
+        STATUS=$(kubectl get taskrun kubeval-example -o json | jq -rc .status.conditions[0].status)
+        LIMIT=$((SECONDS+180))
+        while [ "${STATUS}" != "Unknown" ]; do
+          if [ $SECONDS -gt $LIMIT ]
+          then
+            echo "Timeout waiting for taskrun to complete"
+            exit 2
+          fi
+          sleep 10
+          echo "Waiting for taskrun to complete"
+          STATUS=$(kubectl get taskrun kubeval-example -o json | jq -rc .status.conditions[0].status)
+        done
     - name: Install Tekton CLI
       run: |
         curl -LO https://github.com/tektoncd/cli/releases/download/v0.2.2/tkn_0.2.2_Linux_x86_64.tar.gz
