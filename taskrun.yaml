@@ -1,0 +1,17 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  name: kubeval-example
+spec:
+  taskRef:
+    name: kubeval
+  inputs:
+    resources:
+    - name: source
+      resourceSpec:
+        type: git
+        params:
+        - name: revision
+          value: master
+        - name: url
+          value: https://github.com/instrumenta/conftest.git

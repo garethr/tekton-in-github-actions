@@ -1,0 +1,21 @@
+name: "Demonstrate using Tekton Pipelines in GitHub Actions"
+on: [pull_request, push]
+
+jobs:
+  tekton:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - uses: engineerd/setup-kind@v0.1.0
+    - name: Install Tekton
+      run: |
+        export KUBECONFIG="$(kind get kubeconfig-path)"
+        kubectl apply -f https://storage.googleapis.com/tekton-releases/latest/release.yaml
+    - name: Install Kubeval Tekton Task
+      run: |
+        export KUBECONFIG="$(kind get kubeconfig-path)"
+        kubectl apply -f https://raw.githubusercontent.com/tektoncd/catalog/master/kubeval/kubeval.yaml
+    - name:
+      run: |
+        export KUBECONFIG="$(kind get kubeconfig-path)"
+        kubectl apply -f taskrun.yaml
