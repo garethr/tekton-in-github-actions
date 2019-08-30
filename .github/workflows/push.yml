@@ -27,6 +27,11 @@ jobs:
       run: |
         curl -LO https://github.com/tektoncd/cli/releases/download/v0.2.2/tkn_0.2.2_Linux_x86_64.tar.gz
         sudo tar xvzf tkn_0.2.2_Linux_x86_64.tar.gz -C /usr/local/bin/ tkn
+    - name: Debug 
+      run: |
+        export KUBECONFIG="$(kind get kubeconfig-path)"
+        kubectl get all
+        tkn taskrun list
     - name: Get TaskRun Logs
       run: |
         export KUBECONFIG="$(kind get kubeconfig-path)"
